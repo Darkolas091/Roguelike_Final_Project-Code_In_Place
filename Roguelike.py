@@ -156,7 +156,7 @@ def main():
             move = move.lower()
             if move in MOVES:
                 if lives < 0:
-                    print("You have no lives left! Game over!")
+                    print("\nYou have no lives left! Game over!")
                     continue_game = False
 
                     break
@@ -312,15 +312,47 @@ def main():
         print(f"Total moves so far: {total_moves}")
         print(f"Revives left: {lives}")
 
-    print("\nCongratulations! You've completed all rooms!")
-    print(f"Total moves in all rooms: {total_moves}")
-    print("Moves in each room:", rome_moves)
-    print("Lives left:", lives)
-    print("Coins collected:", coins)
-    print("Seed used for room generation:", seed_string)  # Display the seed string generated
+    #Score calculation
+    score = 0
+    monsters_defeated = 0
+    if lives == 1:
+        score += 50
+        monsters_defeated = 1
+    elif lives == 0:
+        score += 100 
+        monsters_defeated = 2
+    score += coins * 100 - total_moves * 5
+
+    print("\n\n\n")
+    if lives == -1:
+        print("\nYou got defeated!")
+        print("FINAL SCORE: ", score)
+        print(f"Monsters defeated: 2 {2 * 50}points")
+        print(f"Coins collected: {coins} {coins * 100}points")
+        print(f"Total moves in all rooms: {total_moves} {total_moves * -5 * 2}points DOUBLE PENALTY FOR DYING") 
+    else:
+        print("FINAL SCORE: ", score)
+        print(f"Monsters defeated: {monsters_defeated} {monsters_defeated * 50}points")
+        print(f"Coins collected: {coins} {coins * 100}points")
+        print(f"Total moves in all rooms: {total_moves} {total_moves * -5}points")
+        print("Moves in each room:", rome_moves)
+
+
+    print("\nSeed used for room generation:", seed_string)  # Display the seed string generated
     print("You can use this seed to recreate the same room layout in future games to try and get a higher score.")
     print("Thank you for playing!")
 
+    explain = input("If you want to explain the seed meaning, type yes, otherwise press Enter to exit: ")
+    if explain.lower() == 'yes':
+            print("\nSeed Explanation:")
+            print("The seed string is a sequence of numbers that stores the dimensions and door locations of each room.")
+            print("Each room's data is represented as follows:")
+            print("Rows, Columns, Door Row, Door Column, Enemy Row, Enemy Column, Coin Row, Coin Column")
+            print("For example, a seed string '750343517544515387503435' is broken down:")
+            print("This is the first room 75034351")
+            print("Room 1: 7 rows, 5 columns, door at (0, 3), enemy at (4, 3), coin at (5, 1)")
+
 if __name__ == "__main__":
+    
         main()
     
