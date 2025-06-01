@@ -26,94 +26,20 @@ def main():
         game_map[row][col] = " "
 
     #Function to create rooms based on a seed or random generation
-    def create_rooms(seed=None): #Any seed value can be passed to create a room layout or None by default
+    def create_rooms(seed=None):
         rooms = []
-        seed_string = ""         #Initialize seed string to store room dimensions and door locations
-        door_row = 0
-        door_col = 0
+        seed_string = ""
+        number_of_rooms = number_of_additional_rooms + 1  #total rooms including the first
 
-        #Generate dimensions for the first room
         if seed:
-            #Extract rows, columns, and door location from the seed value
-            seed_str = str(seed)            #We convert the seed to a string so we can manipulate it
-            rows = int(seed_str[:2]) // 10  #Divide the first two digits by 10 for rows
-            cols = int(seed_str[:2]) % 10   #Use the remainder of the division for columns
-            door_row = int(seed_str[2:4]) // 10
-            door_col = int(seed_str[2:4]) % 10
-            remaining_seed = seed_str[4:]   #Remaining part of the seed for additional rooms
+            seed_str = str(seed)
+            remaining_seed = seed_str
         else:
-            rows = random.randint(5, 8)
-            cols = random.randint(5, 8)
-
-            
-            #Place the door on a random border (not in the corners)
-            while True:
-                border = random.choice(['top', 'bottom', 'left', 'right'])
-                if border == 'top':
-                    door_row = 0
-                    door_col = random.randint(1, cols - 2)
-                elif border == 'bottom':
-                    door_row = rows - 1
-                    door_col = random.randint(1, cols - 2)
-                elif border == 'left':
-                    door_row = random.randint(1, rows - 2)
-                    door_col = 0
-                else:  # right
-                    door_row = random.randint(1, rows - 2)
-                    door_col = cols - 1
-
-                # Avoid player start position
-                if not (door_row == 1 and door_col == 1):
-                    break
-            
             remaining_seed = None
 
-        #Create the first room
-        room = []
-        for i in range(rows):
-            if i == 0 or i == rows - 1:
-                #Top and bottom walls
-                room.append(["#"] * cols)
-            else:
-                #Middle rows with walls on the sides
-                row = ["#"] + [" "] * (cols - 2) + ["#"]
-                room.append(row)
-
-        #Add the door to the first room
-        room[door_row][door_col] = "D"
-        print(f"Debug: Created first room with dimensions {rows}x{cols} and door at ({door_row}, {door_col})")
-        rooms.append(room)
-
-        #Randomly place 2 walls in the first room
-        wallstart_col = random.randint(2, cols - 3)  #Avoid left/right edges
-        print(f" Debug: Placing wall at column {wallstart_col}")
-        wallstart_row = random.randint(2, rows - 3)  #Avoid top/bottom edges
-        print(f" Debug: Placing wall at row {wallstart_row}")
-        #Place a vertical wall from edge to edge with a random gap
-        gap_row = random.randint(1, rows - 2)  #Gap cannot be on the edge
-        for i in range(1, rows - 1):
-            #Leave a gap and dont block the door
-            if i == gap_row or (i == door_row and wallstart_col == door_col):
-                continue
-            room[i][wallstart_col] = "#"
-
-
-
-        #TODO Horizonal wall, if i can add a valid path to the door
-        """ for i in range(1, cols - 1):
-            # Only place a wall if it does not block the door and does not touch the edge
-            if not (wallstart_row == door_row and i == door_col):
-                room[wallstart_row][i] = "#" """
-            
-                
-
-        #Append dimensions and door location of the first room to the seed string
-        seed_string += f"{rows}{cols}{door_row}{door_col}"
-
-        #Create additional rooms with random sizes
-        for _ in range(number_of_additional_rooms):
+        for room_index in range(number_of_rooms):
+            #Generate dimensions and door location
             if remaining_seed and len(remaining_seed) >= 4:
-                # Extract dimensions and door location from the remaining seed
                 rows = int(remaining_seed[:2]) // 10
                 cols = int(remaining_seed[:2]) % 10
                 door_row = int(remaining_seed[2:4]) // 10
@@ -121,30 +47,53 @@ def main():
                 remaining_seed = remaining_seed[4:]
             else:
                 rows = random.randint(5, 8)
-                cols = random.randint(8, 8)
+                cols = random.randint(5, 8)
+                #Place the door on a random border (not in the corners)
                 while True:
-                    door_row = random.randint(1, rows - 2)
-                    door_col = random.choice([0, cols - 1])
+                    border = random.choice(['top', 'bottom', 'left', 'right'])
+                    if border == 'top':
+                        door_row = 0
+                        door_col = random.randint(1, cols - 2)
+                    elif border == 'bottom':
+                        door_row = rows - 1
+                        door_col = random.randint(1, cols - 2)
+                    elif border == 'left':
+                        door_row = random.randint(1, rows - 2)
+                        door_col = 0
+                    else:  #right
+                        door_row = random.randint(1, rows - 2)
+                        door_col = cols - 1
+                    #Avoid player start position
                     if not (door_row == 1 and door_col == 1):
                         break
 
+            #Create the room grid
             room = []
             for i in range(rows):
                 if i == 0 or i == rows - 1:
-                    # Top and bottom walls
                     room.append(["#"] * cols)
                 else:
-                    # Middle rows with walls on the sides
                     row = ["#"] + [" "] * (cols - 2) + ["#"]
                     room.append(row)
 
             #Add the door
             room[door_row][door_col] = "D"
-
-            print(f"Debug: Created additional room with dimensions {rows}x{cols} and door at ({door_row}, {door_col})")
+            print(f"Debug: Created room {room_index+1} with dimensions {rows}x{cols} and door at ({door_row}, {door_col})")
             rooms.append(room)
 
-            #Append dimensions and door location of the room to the seed string
+            #Randomly place wall in the room
+            wallstart_col = random.randint(2, cols - 3)
+            print(f" Debug: Placing wall at column {wallstart_col}")
+            gap_row = random.randint(1, rows - 2)
+            for i in range(1, rows - 1):
+                if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
+                    continue
+                room[i][wallstart_col] = "#"
+
+
+
+
+            #Append dimensions and door location to the seed string
             seed_string += f"{rows}{cols}{door_row}{door_col}"
 
         print(f"Debug: Generated seed string for rooms: {seed_string}")
