@@ -4,6 +4,7 @@ import random
 def main():
     MOVES = ["w",'a','s','d','q']
     number_of_additional_rooms = 2
+    lives = 2
 
     #Player starting position
     player_row = 1
@@ -90,16 +91,23 @@ def main():
                     continue
                 room[i][wallstart_col] = "#"
 
+            #Add a Enemy (E) at a random position in the room, not 2 spaces away from start
+            enemy_row = random.randint(1, rows - 2)
+            enemy_col = random.randint(1, cols - 2)
+            while abs(enemy_row - 1) <= 2 and abs(enemy_col - 1) <= 2 or (room[enemy_row][enemy_col] == "#"):
+                enemy_row = random.randint(1, rows - 2)
+                enemy_col = random.randint(1, cols - 2)
+            room[enemy_row][enemy_col] = "E"
 
 
 
             #Append dimensions and door location to the seed string
-            seed_string += f"{rows}{cols}{door_row}{door_col}"
+            seed_string += f"{rows}{cols}{door_row}{door_col}{enemy_row}{enemy_col}"
 
         print(f"Debug: Generated seed string for rooms: {seed_string}")
         return rooms, seed_string
 
-    def play_room(game_map, player_row, player_col):
+    def play_room(game_map, player_row, player_col,lives):
         #Reset player position to (1, 1) in the new room
         player_row, player_col = 1, 1
         game_map[player_row][player_col] = "P"
@@ -112,8 +120,21 @@ def main():
             move = input()
             move = move.lower()
             if move in MOVES:
+                if lives < 0:
+                    print("You have no lives left! Game over!")
+                    continue_game = False
+
+                    break
+
                 if move == 'w':
-                    if game_map[player_row - 1][player_col] == 'D':
+                    if game_map[player_row - 1][player_col] == 'E':
+                        print("You encountered an enemy! You lost a life!")
+                        lives -= 1
+                        print("You have", lives, "revives left.")
+                        delete_old_pos(player_row, player_col)
+                        player_row -= 1
+                        room_moves += 1
+                    elif game_map[player_row - 1][player_col] == 'D':
                         print("You found the door! Moving to the next room...")
                         room_moves += 1
                         continue_game = False
@@ -124,7 +145,14 @@ def main():
                         room_moves += 1
 
                 elif move == 'd':
-                    if game_map[player_row][player_col + 1] == 'D':
+                    if game_map[player_row][player_col + 1] == 'E':
+                        print("You encountered an enemy! You lost a life!")
+                        lives -= 1
+                        print("You have", lives, "revives left.")
+                        delete_old_pos(player_row, player_col)
+                        player_col += 1
+                        room_moves += 1
+                    elif game_map[player_row][player_col + 1] == 'D':
                         print("You found the door! Moving to the next room...")
                         room_moves += 1
                         continue_game = False
@@ -135,7 +163,14 @@ def main():
                         room_moves += 1
 
                 elif move == 's':
-                    if game_map[player_row + 1][player_col] == 'D':
+                    if game_map[player_row + 1][player_col] == 'E':
+                        print("You encountered an enemy! You lost a life!")
+                        lives -= 1
+                        print("You have", lives, "revives left.")
+                        delete_old_pos(player_row, player_col)
+                        player_row += 1
+                        room_moves += 1
+                    elif game_map[player_row + 1][player_col] == 'D':
                         print("You found the door! Moving to the next room...")
                         room_moves += 1
                         continue_game = False
@@ -146,7 +181,14 @@ def main():
                         room_moves += 1
 
                 elif move == 'a':
-                    if game_map[player_row][player_col - 1] == 'D':
+                    if game_map[player_row][player_col - 1] == 'E':
+                        print("You encountered an enemy! You lost a life!")
+                        lives -= 1
+                        print("You have", lives, "revives left.")
+                        delete_old_pos(player_row, player_col)
+                        player_col -= 1
+                        room_moves += 1
+                    elif game_map[player_row][player_col - 1] == 'D':
                         print("You found the door! Moving to the next room...")
                         room_moves += 1
                         continue_game = False
@@ -173,7 +215,7 @@ def main():
                     print(" ".join(row))
 
         print(f"Room completed in {room_moves} moves.")
-        return room_moves
+        return room_moves, lives
 
 
 
@@ -203,16 +245,18 @@ def main():
         game_map[1][1] = "P"
         for row in game_map:
             print(" ".join(row))
-        room_moves_value = play_room(game_map, 1, 1)
+        room_moves_value, lives = play_room(game_map, 1, 1, lives)
         total_moves += room_moves_value
         rome_moves.append(room_moves_value)
 
         print(f"Moves in this room: {room_moves_value}")
         print(f"Total moves so far: {total_moves}")
+        print(f"Revives left: {lives}")
 
     print("\nCongratulations! You've completed all rooms!")
     print(f"Total moves in all rooms: {total_moves}")
     print("Moves in each room:", rome_moves)
+    print("Lives left:", lives)
     print("Seed used for room generation:", seed_string)  # Display the seed string generated
     print("You can use this seed to recreate the same room layout in future games to try and get a higher score.")
     print("Thank you for playing!")
