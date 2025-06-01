@@ -5,6 +5,7 @@ def main():
     MOVES = ["w",'a','s','d','q']
     number_of_additional_rooms = 2
     lives = 2
+    coins = 0
 
     #Player starting position
     player_row = 1
@@ -82,32 +83,66 @@ def main():
             print(f"Debug: Created room {room_index+1} with dimensions {rows}x{cols} and door at ({door_row}, {door_col})")
             rooms.append(room)
 
-            #Randomly place wall in the room
-            wallstart_col = random.randint(2, cols - 3)
-            print(f" Debug: Placing wall at column {wallstart_col}")
-            gap_row = random.randint(1, rows - 2)
-            for i in range(1, rows - 1):
-                if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
-                    continue
-                room[i][wallstart_col] = "#"
+            #Randomly place wall in the room, with a maximum number of attempts to avoid infinite loops
+            wall_placed = False
+            wall_attempts = 0
+            max_wall_attempts = 20
+            while not wall_placed and wall_attempts < max_wall_attempts:
+                if cols < 5:
+                    break  # Not enough space for a wall
+                wallstart_col = random.randint(2, cols - 3)
+                print(f" Debug: Placing wall at column {wallstart_col}")
+                gap_row = random.randint(1, rows - 2)
+                wall_possible = True
+                for i in range(1, rows - 1):
+                    if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
+                        continue
+                    if room[i][wallstart_col] == "D":
+                        wall_possible = False
+                        break
+                if wall_possible:
+                    for i in range(1, rows - 1):
+                        if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
+                            continue
+                        room[i][wallstart_col] = "#"
+                    wall_placed = True
+                wall_attempts += 1
 
-            #Add a Enemy (E) at a random position in the room, not 2 spaces away from start
-            enemy_row = random.randint(1, rows - 2)
-            enemy_col = random.randint(1, cols - 2)
-            while abs(enemy_row - 1) <= 2 and abs(enemy_col - 1) <= 2 or (room[enemy_row][enemy_col] == "#"):
+            #Add an Enemy (E) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
+            enemy_placed = False
+            enemy_attempts = 0
+            max_enemy_attempts = 50
+            while not enemy_placed and enemy_attempts < max_enemy_attempts:
                 enemy_row = random.randint(1, rows - 2)
                 enemy_col = random.randint(1, cols - 2)
-            room[enemy_row][enemy_col] = "E"
+                if (abs(enemy_row - 1) > 2 or abs(enemy_col - 1) > 2) and (room[enemy_row][enemy_col] == " "):
+                    room[enemy_row][enemy_col] = "E"
+                    enemy_placed = True
+                enemy_attempts += 1
+            if not enemy_placed:
+                print("Debug: Could not place enemy after many attempts.")
 
-
+            #Add a Coin (C) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
+            coin_placed = False
+            coin_attempts = 0
+            max_coin_attempts = 50
+            while not coin_placed and coin_attempts < max_coin_attempts:
+                coin_row = random.randint(1, rows - 2)
+                coin_col = random.randint(1, cols - 2)
+                if (abs(coin_row - 1) > 2 or abs(coin_col - 1) > 2) and (room[coin_row][coin_col] == " "):
+                    room[coin_row][coin_col] = "C"
+                    coin_placed = True
+                coin_attempts += 1
+            if not coin_placed:
+                print("Debug: Could not place coin after many attempts.")
 
             #Append dimensions and door location to the seed string
-            seed_string += f"{rows}{cols}{door_row}{door_col}{enemy_row}{enemy_col}"
+            seed_string += f"{rows}{cols}{door_row}{door_col}{enemy_row}{enemy_col}{coin_row}{coin_col}"
 
         print(f"Debug: Generated seed string for rooms: {seed_string}")
         return rooms, seed_string
 
-    def play_room(game_map, player_row, player_col,lives):
+    def play_room(game_map, player_row, player_col,lives,coins):
         #Reset player position to (1, 1) in the new room
         player_row, player_col = 1, 1
         game_map[player_row][player_col] = "P"
@@ -127,7 +162,13 @@ def main():
                     break
 
                 if move == 'w':
-                    if game_map[player_row - 1][player_col] == 'E':
+                    if game_map[player_row][player_col + 1] == 'C':
+                        print("You found a coin! You now have", coins + 1, "coins.")
+                        coins += 1
+                        delete_old_pos(player_row, player_col)
+                        player_col += 1
+                        room_moves += 1
+                    elif game_map[player_row - 1][player_col] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
@@ -145,7 +186,13 @@ def main():
                         room_moves += 1
 
                 elif move == 'd':
-                    if game_map[player_row][player_col + 1] == 'E':
+                    if game_map[player_row][player_col + 1] == 'C':
+                        print("You found a coin! You now have", coins + 1, "coins.")
+                        coins += 1
+                        delete_old_pos(player_row, player_col)
+                        player_col += 1
+                        room_moves += 1
+                    elif game_map[player_row][player_col + 1] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
@@ -163,7 +210,13 @@ def main():
                         room_moves += 1
 
                 elif move == 's':
-                    if game_map[player_row + 1][player_col] == 'E':
+                    if game_map[player_row + 1][player_col] == 'C':
+                        print("You found a coin! You now have", coins + 1, "coins.")
+                        coins += 1
+                        delete_old_pos(player_row, player_col)
+                        player_row += 1
+                        room_moves += 1
+                    elif game_map[player_row + 1][player_col] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
@@ -181,7 +234,13 @@ def main():
                         room_moves += 1
 
                 elif move == 'a':
-                    if game_map[player_row][player_col - 1] == 'E':
+                    if game_map[player_row][player_col - 1] == 'C':
+                        print("You found a coin! You now have", coins + 1, "coins.")
+                        coins += 1
+                        delete_old_pos(player_row, player_col)
+                        player_col -= 1
+                        room_moves += 1
+                    elif game_map[player_row][player_col - 1] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
@@ -215,7 +274,7 @@ def main():
                     print(" ".join(row))
 
         print(f"Room completed in {room_moves} moves.")
-        return room_moves, lives
+        return room_moves, lives, coins
 
 
 
@@ -245,7 +304,7 @@ def main():
         game_map[1][1] = "P"
         for row in game_map:
             print(" ".join(row))
-        room_moves_value, lives = play_room(game_map, 1, 1, lives)
+        room_moves_value, lives, coins = play_room(game_map, 1, 1, lives, coins)
         total_moves += room_moves_value
         rome_moves.append(room_moves_value)
 
@@ -257,6 +316,7 @@ def main():
     print(f"Total moves in all rooms: {total_moves}")
     print("Moves in each room:", rome_moves)
     print("Lives left:", lives)
+    print("Coins collected:", coins)
     print("Seed used for room generation:", seed_string)  # Display the seed string generated
     print("You can use this seed to recreate the same room layout in future games to try and get a higher score.")
     print("Thank you for playing!")
