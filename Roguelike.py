@@ -320,14 +320,14 @@ def main():
         print("\nSeed Explanation:")
         print("The seed string is a sequence of numbers that stores a unique value to create a world.")
         print("Each room's data is represented as follows:")
-        print("Rows, Columns, Door Row, Door Column, Enemy Row, Enemy Column, Coin Row, Coin Column")
-        print("For example, a seed string '750343517544515387503435' is broken down:")
+        print("Rows, Columns, Door Row, Door Column, Enemy Row, Enemy Column, Coin Row, Coin Column, Wall Start Column, Gap Row")
+        print("For example, a seed string '750343512175445153218750343521' is broken down:")
         print("Room 1: 75034351")
-        print("Room 1: 7 rows, 5 columns, door at (0, 3), enemy at (4, 3), coin at (5, 1)")
+        print("Room 1: 7 rows, 5 columns, door at (0, 3), enemy at (4, 3), coin at (5, 1), wall at column 2, gap at row 1")
         print("Room 2: 75445153")
-        print("Room 2: 7 rows, 5 columns, door at (4, 4), enemy at (5, 1), coin at (5, 3)")
+        print("Room 2: 7 rows, 5 columns, door at (4, 4), enemy at (5, 1), coin at (5, 3), wall at column 2, gap at row 1")
         print("Room 3: 87503435")
-        print("Room 3: 8 rows, 7 columns, door at (5, 0), enemy at (3, 4), coin at (3, 5)")
+        print("Room 3: 8 rows, 7 columns, door at (5, 0), enemy at (3, 4), coin at (3, 5), wall at column 2, gap at row 1")
 
     #GAME START CODE
     def game_loop(seed):
