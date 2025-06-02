@@ -23,7 +23,7 @@ def main():
         print(f"\nDebug: Moved {direction}")
     
     #Delete the old position of the player and print debug message
-    def delete_old_pos(row, col):
+    def delete_old_pos(game_map, row, col):
         print("Debug: deleted old position")
         game_map[row][col] = " "
 
@@ -165,14 +165,14 @@ def main():
                     if game_map[player_row][player_col + 1] == 'C':
                         print("You found a coin! You now have", coins + 1, "coins.")
                         coins += 1
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_col += 1
                         room_moves += 1
                     elif game_map[player_row - 1][player_col] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_row -= 1
                         room_moves += 1
                     elif game_map[player_row - 1][player_col] == 'D':
@@ -180,7 +180,7 @@ def main():
                         room_moves += 1
                         continue_game = False
                     elif game_map[player_row - 1][player_col] != '#':
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_row -= 1
                         print_if_moved(move)
                         room_moves += 1
@@ -189,14 +189,14 @@ def main():
                     if game_map[player_row][player_col + 1] == 'C':
                         print("You found a coin! You now have", coins + 1, "coins.")
                         coins += 1
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_col += 1
                         room_moves += 1
                     elif game_map[player_row][player_col + 1] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_col += 1
                         room_moves += 1
                     elif game_map[player_row][player_col + 1] == 'D':
@@ -204,7 +204,7 @@ def main():
                         room_moves += 1
                         continue_game = False
                     elif game_map[player_row][player_col + 1] != '#':
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_col += 1
                         print_if_moved(move)
                         room_moves += 1
@@ -213,14 +213,14 @@ def main():
                     if game_map[player_row + 1][player_col] == 'C':
                         print("You found a coin! You now have", coins + 1, "coins.")
                         coins += 1
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_row += 1
                         room_moves += 1
                     elif game_map[player_row + 1][player_col] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_row += 1
                         room_moves += 1
                     elif game_map[player_row + 1][player_col] == 'D':
@@ -228,7 +228,7 @@ def main():
                         room_moves += 1
                         continue_game = False
                     elif game_map[player_row + 1][player_col] != '#':
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_row += 1
                         print_if_moved(move)
                         room_moves += 1
@@ -237,14 +237,14 @@ def main():
                     if game_map[player_row][player_col - 1] == 'C':
                         print("You found a coin! You now have", coins + 1, "coins.")
                         coins += 1
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_col -= 1
                         room_moves += 1
                     elif game_map[player_row][player_col - 1] == 'E':
                         print("You encountered an enemy! You lost a life!")
                         lives -= 1
                         print("You have", lives, "revives left.")
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_col -= 1
                         room_moves += 1
                     elif game_map[player_row][player_col - 1] == 'D':
@@ -252,7 +252,7 @@ def main():
                         room_moves += 1
                         continue_game = False
                     elif game_map[player_row][player_col - 1] != '#':
-                        delete_old_pos(player_row, player_col)
+                        delete_old_pos(game_map,player_row, player_col)
                         player_col -= 1
                         print_if_moved(move)
                         room_moves += 1
@@ -276,83 +276,156 @@ def main():
         print(f"Room completed in {room_moves} moves.")
         return room_moves, lives, coins
 
-
+    def show_seed_explanation():
+        print("\nSeed Explanation:")
+        print("The seed string is a sequence of numbers that stores a unique value to create a world.")
+        print("Each room's data is represented as follows:")
+        print("Rows, Columns, Door Row, Door Column, Enemy Row, Enemy Column, Coin Row, Coin Column")
+        print("For example, a seed string '750343517544515387503435' is broken down:")
+        print("Room 1: 75034351")
+        print("Room 1: 7 rows, 5 columns, door at (0, 3), enemy at (4, 3), coin at (5, 1)")
+        print("Room 2: 75445153")
+        print("Room 2: 7 rows, 5 columns, door at (4, 4), enemy at (5, 1), coin at (5, 3)")
+        print("Room 3: 87503435")
+        print("Room 3: 8 rows, 7 columns, door at (5, 0), enemy at (3, 4), coin at (3, 5)")
 
     #GAME START CODE
-    #Create rooms with a seed
-    seed_string = ""
-    seed = input("Enter a seed (or press Enter to skip): ")
-    seed = seed.strip()  # Remove any leading/trailing whitespace
-    rooms,seed_string = create_rooms(seed)
+    def game_loop(seed):
+        nonlocal lives, coins, player_row, player_col
+        lives = 2
+        coins = 0
+        player_row = 1
+        player_col = 1
+        seed_string = ""
+        rooms, seed_string = create_rooms(seed)
 
-    #Set the first room as the initial game map
-    game_map = rooms[0]
-    #Place the player in the initial room
-    game_map[player_row][player_col] = "P"
+        game_map = rooms[0]
+        game_map[player_row][player_col] = "P"
 
-    #Print instructions
-    print("\nInstructions:")
-    print("Use 'W' to move up, 'A' to move left, 'S' to move down, 'D' to move right.\n")
-    print("Try to find the door (D) to exit the room as efficiently as u can.")
+        print("\nInstructions:")
+        print("Use 'W' to move up, 'A' to move left, 'S' to move down, 'D' to move right.\n")
+        print("Try to find the door (D) to exit the room as efficiently as u can.")
 
+        total_moves = 0  #nitialize total moves counter
+        rome_moves = []
+        for room in rooms:
+            game_map = room
+            game_map[1][1] = "P"
+            for row in game_map:
+                print(" ".join(row))
+            room_moves_value, lives, coins = play_room(game_map, 1, 1, lives, coins)
+            total_moves += room_moves_value
+            rome_moves.append(room_moves_value)
 
-    #Loop through rooms
-    total_moves = 0  #nitialize total moves counter
-    rome_moves = []
-    for room in rooms:
-        game_map = room
-        game_map[1][1] = "P"
-        for row in game_map:
-            print(" ".join(row))
-        room_moves_value, lives, coins = play_room(game_map, 1, 1, lives, coins)
-        total_moves += room_moves_value
-        rome_moves.append(room_moves_value)
+            print(f"Moves in this room: {room_moves_value}")
+            print(f"Total moves so far: {total_moves}")
+            print(f"Revives left: {lives}")
 
-        print(f"Moves in this room: {room_moves_value}")
-        print(f"Total moves so far: {total_moves}")
-        print(f"Revives left: {lives}")
+        #Score calculation
+        score = 0
+        monsters_defeated = 0
+        if lives == 1:
+            score += 50
+            monsters_defeated = 1
+        elif lives == 0:
+            score += 100 
+            monsters_defeated = 2
+        score += coins * 100 - total_moves * 5
 
-    #Score calculation
-    score = 0
-    monsters_defeated = 0
-    if lives == 1:
-        score += 50
-        monsters_defeated = 1
-    elif lives == 0:
-        score += 100 
-        monsters_defeated = 2
-    score += coins * 100 - total_moves * 5
+        print("\n\n\n")
+        if lives == -1:
+            print("\nYou got defeated!")
+            print("FINAL SCORE: ", score)
+            print(f"Monsters defeated: 2 {2 * 50}points")
+            print(f"Coins collected: {coins} {coins * 100}points")
+            print(f"Total moves in all rooms: {total_moves} {total_moves * -5 * 2}points DOUBLE PENALTY FOR DYING") 
+        else:
+            print("FINAL SCORE: ", score)
+            print(f"Monsters defeated: {monsters_defeated} {monsters_defeated * 50}points")
+            print(f"Coins collected: {coins} {coins * 100}points")
+            print(f"Total moves in all rooms: {total_moves} {total_moves * -5}points")
+            print("Moves in each room:", rome_moves)
 
-    print("\n\n\n")
-    if lives == -1:
-        print("\nYou got defeated!")
-        print("FINAL SCORE: ", score)
-        print(f"Monsters defeated: 2 {2 * 50}points")
-        print(f"Coins collected: {coins} {coins * 100}points")
-        print(f"Total moves in all rooms: {total_moves} {total_moves * -5 * 2}points DOUBLE PENALTY FOR DYING") 
-    else:
-        print("FINAL SCORE: ", score)
-        print(f"Monsters defeated: {monsters_defeated} {monsters_defeated * 50}points")
-        print(f"Coins collected: {coins} {coins * 100}points")
-        print(f"Total moves in all rooms: {total_moves} {total_moves * -5}points")
-        print("Moves in each room:", rome_moves)
+        print("\nSeed used for room generation:", seed_string)  # Display the seed string generated
+        print("You can use this seed to recreate the same room layout in future games to try and get a higher score.")
+        print("Thank you for playing!")
+        return seed_string
 
+    # Main menu loop
+    def main_menu():
+        print("====================================")
+        print("  Welcome to Roguelike Adventure!   ")
+        print("====================================")
+        while True:
+            print("\nPlease select an option:")
+            print("1. Start game (random seed)")
+            print("2. Start with specific seed")
+            print("3. What is a seed?")
+            print("4. How to play?")
+            print("5. Quit")
+            choice = input("Enter your choice (1-5): ").strip()
+            if choice == "1":
+                return None
+            elif choice == "2":
+                seed = input("Enter a seed: ").strip()
+                return seed
+            elif choice == "3":
+                show_seed_explanation()
+            elif choice == "4":
+                print("\nHow to Play:")
+                print("- Use W (up), A (left), S (down), D (right) to move your character (P) around the room.")
+                print("- The goal is to find the door (D) in each room and escape as efficiently as possible.")
+                print("- Collecting coins (C) and defeating monsters (E) is optional, but gives you extra points.")
+                print("- There can be up to 3 monsters in the game, but you can only defeat 2 safely. Fighting a third will result in your defeat.")
+                print("- If you die (lose all lives), the negative points from your total moves are doubled as a penalty.")
+                print("\nScoring:")
+                print("- Each coin collected: +100 points")
+                print("- Each monster defeated: +50 points (up to 2 monsters)")
+                print("- Each move made: -5 points")
+                print("- If you die, total move penalty is doubled (moves x -10)")
+                print("- Try to escape with as many coins and as few moves as possible!")
+            elif choice == "5":
+                print("Goodbye!")
+                exit(0)
+            else:
+                print("Invalid choice. Please try again.")
 
-    print("\nSeed used for room generation:", seed_string)  # Display the seed string generated
-    print("You can use this seed to recreate the same room layout in future games to try and get a higher score.")
-    print("Thank you for playing!")
+    # Post-game menu loop
+    def post_game_menu(last_seed):
+        while True:
+            print("\nWould you like to:")
+            print("1. Play a new game (random seed)")
+            print("2. Restart with the same seed")
+            print("3. Enter a specific seed")
+            print("4. What is a seed?")
+            print("5. Quit")
+            choice = input("Enter your choice (1-5): ").strip()
+            if choice == "1":
+                return None
+            elif choice == "2":
+                return last_seed
+            elif choice == "3":
+                seed = input("Enter a seed: ").strip()
+                return seed
+            elif choice == "4":
+                show_seed_explanation()
+            elif choice == "5":
+                print("Goodbye!")
+                exit(0)
+            else:
+                print("Invalid choice. Please try again.")
 
-    explain = input("If you want to explain the seed meaning, type yes, otherwise press Enter to exit: ")
-    if explain.lower() == 'yes':
-            print("\nSeed Explanation:")
-            print("The seed string is a sequence of numbers that stores the dimensions and door locations of each room.")
-            print("Each room's data is represented as follows:")
-            print("Rows, Columns, Door Row, Door Column, Enemy Row, Enemy Column, Coin Row, Coin Column")
-            print("For example, a seed string '750343517544515387503435' is broken down:")
-            print("This is the first room 75034351")
-            print("Room 1: 7 rows, 5 columns, door at (0, 3), enemy at (4, 3), coin at (5, 1)")
+    # Main game loop
+    while True:
+        seed = main_menu()
+        last_seed = game_loop(seed)
+        while True:
+            explain = input("If you want to explain the seed meaning, type yes, otherwise press Enter to continue: ")
+            if explain.lower() == 'yes':
+                show_seed_explanation()
+            else:
+                break
+        seed = post_game_menu(last_seed)
 
 if __name__ == "__main__":
-    
-        main()
-    
+    main()
