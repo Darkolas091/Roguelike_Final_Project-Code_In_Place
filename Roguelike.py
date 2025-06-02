@@ -33,12 +33,15 @@ def main():
         rooms = []
         seed_string = ""
         number_of_rooms = number_of_additional_rooms + 1  #total rooms including the first
-
+        had_valid_seed = False
         if seed:
             seed_str = str(seed)
             remaining_seed = seed_str
         else:
             remaining_seed = None
+
+        if len(seed_str) == 30:
+            had_valid_seed = True
 
         for room_index in range(number_of_rooms):
             #Generate dimensions and door location
@@ -95,7 +98,7 @@ def main():
             wall_attempts = 0
             max_wall_attempts = 20
             #Use wallstart_col and gap_row from seed if available
-            if remaining_seed and len(remaining_seed) >= 20:
+            if remaining_seed and len(remaining_seed) >= 10 or had_valid_seed:
                 #Already parsed above
                 if cols >= 5:
                     wall_possible = True
@@ -135,7 +138,7 @@ def main():
 
             #Add an Enemy (E) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
             enemy_placed = False
-            if remaining_seed and len(remaining_seed) >= 10:
+            if remaining_seed and len(remaining_seed) >= 10 or had_valid_seed:
                 #Use enemy_row and enemy_col from seed if available
                 if (abs(enemy_row - 1) > 2 or abs(enemy_col - 1) > 2) and (room[enemy_row][enemy_col] == " "):
                     room[enemy_row][enemy_col] = "E"
@@ -159,7 +162,7 @@ def main():
 
             #Add a Coin (C) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
             coin_placed = False
-            if remaining_seed and len(remaining_seed) >= 14:
+            if remaining_seed and len(remaining_seed) >= 10 or had_valid_seed:
                 #Use coin_row and coin_col from seed if available
                 if (abs(coin_row - 1) > 2 or abs(coin_col - 1) > 2) and (room[coin_row][coin_col] == " "):
                     room[coin_row][coin_col] = "C"
