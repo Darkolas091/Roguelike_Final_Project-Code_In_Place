@@ -20,11 +20,12 @@ def main():
     #FUNCTION DEFINITIONS
     #Debug message for movement
     def print_if_moved(direction):
-        print(f"\nDebug: Moved {direction}")
+        #print(f"\nDebug: Moved {direction}")
+        pass
     
     #Delete the old position of the player and print debug message
     def delete_old_pos(game_map, row, col):
-        print("Debug: deleted old position")
+        #print("Debug: deleted old position")
         game_map[row][col] = " "
 
     #Function to create rooms based on a seed or random generation
@@ -86,16 +87,16 @@ def main():
 
             #Add the door
             room[door_row][door_col] = "D"
-            print(f"Debug: Created room {room_index+1} with dimensions {rows}x{cols} and door at ({door_row}, {door_col})")
+            #print(f"Debug: Created room {room_index+1} with dimensions {rows}x{cols} and door at ({door_row}, {door_col})")
             rooms.append(room)
 
             #Randomly place wall in the room, with a maximum number of attempts to avoid infinite loops
             wall_placed = False
             wall_attempts = 0
             max_wall_attempts = 20
-            # Use wallstart_col and gap_row from seed if available
+            #Use wallstart_col and gap_row from seed if available
             if remaining_seed and len(remaining_seed) >= 20:
-                # Already parsed above
+                #Already parsed above
                 if cols >= 5:
                     wall_possible = True
                     for i in range(1, rows - 1):
@@ -113,9 +114,9 @@ def main():
             else:
                 while not wall_placed and wall_attempts < max_wall_attempts:
                     if cols < 5:
-                        break  # Not enough space for a wall
+                        break  #Not enough space for a wall
                     wallstart_col = random.randint(2, cols - 3)
-                    print(f" Debug: Placing wall at column {wallstart_col}")
+                    #print(f" Debug: Placing wall at column {wallstart_col}")
                     gap_row = random.randint(1, rows - 2)
                     wall_possible = True
                     for i in range(1, rows - 1):
@@ -140,7 +141,8 @@ def main():
                     room[enemy_row][enemy_col] = "E"
                     enemy_placed = True
                 else:
-                    print("Debug: Seeded enemy position invalid, falling back to random placement.")
+                    #print("Debug: Seeded enemy position invalid, falling back to random placement.")
+                    pass
             if not enemy_placed:
                 enemy_attempts = 0
                 max_enemy_attempts = 50
@@ -152,17 +154,19 @@ def main():
                         enemy_placed = True
                     enemy_attempts += 1
                 if not enemy_placed:
-                    print("Debug: Could not place enemy after many attempts.")
+                    #print("Debug: Could not place enemy after many attempts.")
+                    pass
 
-            # Add a Coin (C) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
+            #Add a Coin (C) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
             coin_placed = False
             if remaining_seed and len(remaining_seed) >= 14:
-                # Use coin_row and coin_col from seed if available
+                #Use coin_row and coin_col from seed if available
                 if (abs(coin_row - 1) > 2 or abs(coin_col - 1) > 2) and (room[coin_row][coin_col] == " "):
                     room[coin_row][coin_col] = "C"
                     coin_placed = True
                 else:
-                    print("Debug: Seeded coin position invalid, falling back to random placement.")
+                    #print("Debug: Seeded coin position invalid, falling back to random placement.")
+                    pass
             if not coin_placed:
                 coin_attempts = 0
                 max_coin_attempts = 50
@@ -174,12 +178,13 @@ def main():
                         coin_placed = True
                     coin_attempts += 1
                 if not coin_placed:
-                    print("Debug: Could not place coin after many attempts.")
+                    #print("Debug: Could not place coin after many attempts.")
+                    pass
 
             #Append dimensions and door location to the seed string
             seed_string += f"{rows}{cols}{door_row}{door_col}{enemy_row}{enemy_col}{coin_row}{coin_col}{wallstart_col}{gap_row}"
 
-        print(f"Debug: Generated seed string for rooms: {seed_string}")
+        #print(f"Debug: Generated seed string for rooms: {seed_string}")
         return rooms, seed_string
 
     def play_room(game_map, player_row, player_col,lives,coins):
@@ -302,11 +307,11 @@ def main():
                     #Display the map
                     for row in game_map:
                         print(" ".join(row))
-                    print("\nDebug: quit")
+                    #print("\nDebug: quit")
                     print(f"Room moves: {room_moves}")
                     exit(0)
 
-                print("Debug: tried to move")
+                #print("Debug: tried to move")
                 game_map[player_row][player_col] = "P"
 
                 #Display the map
@@ -413,7 +418,8 @@ def main():
                 show_seed_explanation()
             elif choice == "4":
                 print("\nHow to Play:")
-                print("- Use W (up), A (left), S (down), D (right) to move your character (P) around the room.")
+                print("- Type W (up), A (left), S (down), D (right) to move your character (P) around the room.")
+                print("- After typing a move, press Enter to execute it.")
                 print("- The goal is to find the door (D) in each room and escape as efficiently as possible.")
                 print("- Collecting coins (C) and defeating monsters (E) is optional, but gives you extra points.")
                 print("- There can be up to 3 monsters in the game, but you can only defeat 2 safely. Fighting a third will result in your defeat.")
