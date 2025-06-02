@@ -41,12 +41,18 @@ def main():
 
         for room_index in range(number_of_rooms):
             #Generate dimensions and door location
-            if remaining_seed and len(remaining_seed) >= 4:
-                rows = int(remaining_seed[:2]) // 10
-                cols = int(remaining_seed[:2]) % 10
-                door_row = int(remaining_seed[2:4]) // 10
-                door_col = int(remaining_seed[2:4]) % 10
-                remaining_seed = remaining_seed[4:]
+            if remaining_seed and len(remaining_seed) >= 10:
+                rows = int(remaining_seed[0])
+                cols = int(remaining_seed[1])
+                door_row = int(remaining_seed[2])
+                door_col = int(remaining_seed[3])
+                enemy_row = int(remaining_seed[4])
+                enemy_col = int(remaining_seed[5])
+                coin_row = int(remaining_seed[6])
+                coin_col = int(remaining_seed[7])
+                wallstart_col = int(remaining_seed[8])
+                gap_row = int(remaining_seed[9])
+                remaining_seed = remaining_seed[10:]
             else:
                 rows = random.randint(5, 8)
                 cols = random.randint(5, 8)
@@ -87,57 +93,91 @@ def main():
             wall_placed = False
             wall_attempts = 0
             max_wall_attempts = 20
-            while not wall_placed and wall_attempts < max_wall_attempts:
-                if cols < 5:
-                    break  # Not enough space for a wall
-                wallstart_col = random.randint(2, cols - 3)
-                print(f" Debug: Placing wall at column {wallstart_col}")
-                gap_row = random.randint(1, rows - 2)
-                wall_possible = True
-                for i in range(1, rows - 1):
-                    if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
-                        continue
-                    if room[i][wallstart_col] == "D":
-                        wall_possible = False
-                        break
-                if wall_possible:
+            # Use wallstart_col and gap_row from seed if available
+            if remaining_seed and len(remaining_seed) >= 20:
+                # Already parsed above
+                if cols >= 5:
+                    wall_possible = True
                     for i in range(1, rows - 1):
                         if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
                             continue
-                        room[i][wallstart_col] = "#"
-                    wall_placed = True
-                wall_attempts += 1
+                        if room[i][wallstart_col] == "D":
+                            wall_possible = False
+                            break
+                    if wall_possible:
+                        for i in range(1, rows - 1):
+                            if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
+                                continue
+                            room[i][wallstart_col] = "#"
+                        wall_placed = True
+            else:
+                while not wall_placed and wall_attempts < max_wall_attempts:
+                    if cols < 5:
+                        break  # Not enough space for a wall
+                    wallstart_col = random.randint(2, cols - 3)
+                    print(f" Debug: Placing wall at column {wallstart_col}")
+                    gap_row = random.randint(1, rows - 2)
+                    wall_possible = True
+                    for i in range(1, rows - 1):
+                        if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
+                            continue
+                        if room[i][wallstart_col] == "D":
+                            wall_possible = False
+                            break
+                    if wall_possible:
+                        for i in range(1, rows - 1):
+                            if i == gap_row or (i == door_row + 1 and wallstart_col == door_col) or (i == door_row - 1 and wallstart_col == door_col):
+                                continue
+                            room[i][wallstart_col] = "#"
+                        wall_placed = True
+                    wall_attempts += 1
 
             #Add an Enemy (E) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
             enemy_placed = False
-            enemy_attempts = 0
-            max_enemy_attempts = 50
-            while not enemy_placed and enemy_attempts < max_enemy_attempts:
-                enemy_row = random.randint(1, rows - 2)
-                enemy_col = random.randint(1, cols - 2)
+            if remaining_seed and len(remaining_seed) >= 10:
+                #Use enemy_row and enemy_col from seed if available
                 if (abs(enemy_row - 1) > 2 or abs(enemy_col - 1) > 2) and (room[enemy_row][enemy_col] == " "):
                     room[enemy_row][enemy_col] = "E"
                     enemy_placed = True
-                enemy_attempts += 1
+                else:
+                    print("Debug: Seeded enemy position invalid, falling back to random placement.")
             if not enemy_placed:
-                print("Debug: Could not place enemy after many attempts.")
+                enemy_attempts = 0
+                max_enemy_attempts = 50
+                while not enemy_placed and enemy_attempts < max_enemy_attempts:
+                    enemy_row = random.randint(1, rows - 2)
+                    enemy_col = random.randint(1, cols - 2)
+                    if (abs(enemy_row - 1) > 2 or abs(enemy_col - 1) > 2) and (room[enemy_row][enemy_col] == " "):
+                        room[enemy_row][enemy_col] = "E"
+                        enemy_placed = True
+                    enemy_attempts += 1
+                if not enemy_placed:
+                    print("Debug: Could not place enemy after many attempts.")
 
-            #Add a Coin (C) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
+            # Add a Coin (C) at a random position in the room, not 2 spaces away from start, with a maximum number of attempts
             coin_placed = False
-            coin_attempts = 0
-            max_coin_attempts = 50
-            while not coin_placed and coin_attempts < max_coin_attempts:
-                coin_row = random.randint(1, rows - 2)
-                coin_col = random.randint(1, cols - 2)
+            if remaining_seed and len(remaining_seed) >= 14:
+                # Use coin_row and coin_col from seed if available
                 if (abs(coin_row - 1) > 2 or abs(coin_col - 1) > 2) and (room[coin_row][coin_col] == " "):
                     room[coin_row][coin_col] = "C"
                     coin_placed = True
-                coin_attempts += 1
+                else:
+                    print("Debug: Seeded coin position invalid, falling back to random placement.")
             if not coin_placed:
-                print("Debug: Could not place coin after many attempts.")
+                coin_attempts = 0
+                max_coin_attempts = 50
+                while not coin_placed and coin_attempts < max_coin_attempts:
+                    coin_row = random.randint(1, rows - 2)
+                    coin_col = random.randint(1, cols - 2)
+                    if (abs(coin_row - 1) > 2 or abs(coin_col - 1) > 2) and (room[coin_row][coin_col] == " "):
+                        room[coin_row][coin_col] = "C"
+                        coin_placed = True
+                    coin_attempts += 1
+                if not coin_placed:
+                    print("Debug: Could not place coin after many attempts.")
 
             #Append dimensions and door location to the seed string
-            seed_string += f"{rows}{cols}{door_row}{door_col}{enemy_row}{enemy_col}{coin_row}{coin_col}"
+            seed_string += f"{rows}{cols}{door_row}{door_col}{enemy_row}{enemy_col}{coin_row}{coin_col}{wallstart_col}{gap_row}"
 
         print(f"Debug: Generated seed string for rooms: {seed_string}")
         return rooms, seed_string
@@ -330,7 +370,7 @@ def main():
         elif lives == 0:
             score += 100 
             monsters_defeated = 2
-        score += coins * 100 - total_moves * 5
+        score += coins * 100 - total_moves * 2
 
         print("\n\n\n")
         if lives == -1:
@@ -338,12 +378,12 @@ def main():
             print("FINAL SCORE: ", score)
             print(f"Monsters defeated: 2 {2 * 50}points")
             print(f"Coins collected: {coins} {coins * 100}points")
-            print(f"Total moves in all rooms: {total_moves} {total_moves * -5 * 2}points DOUBLE PENALTY FOR DYING") 
+            print(f"Total moves in all rooms: {total_moves} {total_moves * -2 * 2}points DOUBLE PENALTY FOR DYING") 
         else:
             print("FINAL SCORE: ", score)
             print(f"Monsters defeated: {monsters_defeated} {monsters_defeated * 50}points")
             print(f"Coins collected: {coins} {coins * 100}points")
-            print(f"Total moves in all rooms: {total_moves} {total_moves * -5}points")
+            print(f"Total moves in all rooms: {total_moves} {total_moves * -2}points")
             print("Moves in each room:", rome_moves)
 
         print("\nSeed used for room generation:", seed_string)  # Display the seed string generated
@@ -381,8 +421,8 @@ def main():
                 print("\nScoring:")
                 print("- Each coin collected: +100 points")
                 print("- Each monster defeated: +50 points (up to 2 monsters)")
-                print("- Each move made: -5 points")
-                print("- If you die, total move penalty is doubled (moves x -10)")
+                print("- Each move made: -2 points")
+                print("- If you die, total move penalty is doubled (moves x -4)")
                 print("- Try to escape with as many coins and as few moves as possible!")
             elif choice == "5":
                 print("Goodbye!")
@@ -395,18 +435,18 @@ def main():
         while True:
             print("\nWould you like to:")
             print("1. Play a new game (random seed)")
-            print("2. Restart with the same seed")
-            print("3. Enter a specific seed")
+            print("2. Enter a specific seed")
+            print("3. Restart with previous seed")
             print("4. What is a seed?")
             print("5. Quit")
             choice = input("Enter your choice (1-5): ").strip()
             if choice == "1":
                 return None
             elif choice == "2":
-                return last_seed
-            elif choice == "3":
                 seed = input("Enter a seed: ").strip()
                 return seed
+            elif choice == "3":
+                return last_seed
             elif choice == "4":
                 show_seed_explanation()
             elif choice == "5":
@@ -418,14 +458,11 @@ def main():
     # Main game loop
     while True:
         seed = main_menu()
-        last_seed = game_loop(seed)
         while True:
-            explain = input("If you want to explain the seed meaning, type yes, otherwise press Enter to continue: ")
-            if explain.lower() == 'yes':
-                show_seed_explanation()
-            else:
+            last_seed = game_loop(seed)
+            seed = post_game_menu(last_seed)
+            if seed is None or seed != last_seed:
                 break
-        seed = post_game_menu(last_seed)
 
 if __name__ == "__main__":
     main()
