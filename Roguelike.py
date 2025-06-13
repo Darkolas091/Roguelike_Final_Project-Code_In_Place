@@ -34,6 +34,7 @@ def main():
         seed_string = ""
         number_of_rooms = number_of_additional_rooms + 1  #total rooms including the first
         had_valid_seed = False
+        seed_str = ""
         if seed:
             seed_str = str(seed)
             remaining_seed = seed_str
